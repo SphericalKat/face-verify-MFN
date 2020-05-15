@@ -20,9 +20,15 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Camera permissions granted", Toast.LENGTH_SHORT).show()
         }
 
+        button1.setOnClickListener {
+            selectedImage = imageView
+            startActivity(Intent(this, CameraActivity::class.java))
+        }
 
-        selectedImage = imageView
-        startActivity(Intent(this, CameraActivity::class.java))
+        button2.setOnClickListener {
+            selectedImage = imageView2
+            startActivity(Intent(this, CameraActivity::class.java))
+        }
     }
 
     companion object {
