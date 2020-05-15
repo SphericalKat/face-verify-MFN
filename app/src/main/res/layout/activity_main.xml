@@ -11,11 +11,11 @@
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginTop="48dp"
+        android:layout_marginEnd="24dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toStartOf="@+id/imageView2"
         app:layout_constraintHorizontal_bias="0.5"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true"
-        android:layout_marginEnd="24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,11 +33,11 @@
         android:id="@+id/imageView2"
         android:layout_width="0dp"
         android:layout_height="200dp"
+        android:layout_marginStart="24dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        android:layout_marginStart="24dp"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toTopOf="@+id/imageView" />
 
@@ -56,24 +56,54 @@
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginTop="48dp"
+        android:layout_marginEnd="24dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toStartOf="@+id/cropView2"
         app:layout_constraintHorizontal_bias="0.5"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true"
-        android:layout_marginEnd="24dp"
         app:layout_constraintStart_toStartOf="@id/imageView"
         app:layout_constraintTop_toBottomOf="@id/button1" />
+
+    <Button
+        android:id="@+id/cropButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crop Images"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/cropView"
+        app:layout_constraintStart_toStartOf="@+id/cropView"
+        app:layout_constraintTop_toBottomOf="@+id/cropView" />
 
     <ImageView
         android:id="@+id/cropView2"
         android:layout_width="0dp"
         android:layout_height="200dp"
+        android:layout_marginStart="24dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        android:layout_marginStart="24dp"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true"
         app:layout_constraintStart_toEndOf="@+id/cropView"
         app:layout_constraintTop_toTopOf="@+id/cropView" />
+
+    <Button
+        android:id="@+id/compareButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Compare faces"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/cropView2"
+        app:layout_constraintTop_toBottomOf="@+id/cropView2" />
+
+    <TextView
+        android:id="@+id/resultTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/compareButton"
+        app:layout_constraintStart_toStartOf="@+id/cropButton"
+        tools:text="Result text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
