@@ -52,6 +52,8 @@ class MainActivity : AppCompatActivity() {
         cropButton.setOnClickListener {
             faceCrop()
         }
+
+        compareButton.setOnClickListener { compareFaces() }
     }
 
     private fun faceCrop() {
@@ -97,6 +99,27 @@ class MainActivity : AppCompatActivity() {
         bitmapCrop2 = Utils.crop(bitmapTemp2, rect2)
         cropView.setImageBitmap(bitmapCrop1)
         cropView2.setImageBitmap(bitmapCrop2)
+    }
+
+    private fun compareFaces() {
+        if (bitmapCrop1 == null || bitmapCrop2 == null) {
+            Toast.makeText(this, "You need to crop faces first", Toast.LENGTH_SHORT).show()
+        }
+
+        val start = System.currentTimeMillis()
+        val same = mfn.compare(bitmapCrop1, bitmapCrop2)
+        val end = System.currentTimeMillis()
+
+        var text = "Match probability: $same"
+        if (same > MobileFaceNet.THRESHOLD) {
+            text = "$text, Faces match: True"
+            resultTextView.setTextColor(resources.getColor(android.R.color.holo_green_light))
+        } else {
+            text = "$text, Faces match: False"
+            resultTextView.setTextColor(resources.getColor(android.R.color.holo_red_light))
+        }
+        text += "\nTime taken to compare faces: ${(end - start)} ms"
+        resultTextView.text = text
     }
 
     companion object {
