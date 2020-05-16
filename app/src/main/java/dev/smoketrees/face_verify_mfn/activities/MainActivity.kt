@@ -104,6 +104,7 @@ class MainActivity : AppCompatActivity() {
     private fun compareFaces() {
         if (bitmapCrop1 == null || bitmapCrop2 == null) {
             Toast.makeText(this, "You need to crop faces first", Toast.LENGTH_SHORT).show()
+            return
         }
 
         val start = System.currentTimeMillis()
