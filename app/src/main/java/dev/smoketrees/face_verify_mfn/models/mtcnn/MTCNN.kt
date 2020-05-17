@@ -6,8 +6,10 @@ import android.graphics.Point
 import dev.smoketrees.face_verify_mfn.utils.Utils
 import org.tensorflow.lite.Interpreter
 import java.util.*
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 
 class MTCNN(assetManager: AssetManager?) {
@@ -48,7 +50,7 @@ class MTCNN(assetManager: AssetManager?) {
     }
 
     private fun pNet(bitmap: Bitmap, minSize: Int): Vector<Box> {
-        val whMin = Math.min(bitmap.width, bitmap.height)
+        val whMin = min(bitmap.width, bitmap.height)
         var currentFaceSize =
             minSize.toFloat() // currentFaceSize=minSize/(factor^k) k=0,1,2... until exceed whMin
         val totalBoxes = Vector<Box>()
@@ -62,8 +64,8 @@ class MTCNN(assetManager: AssetManager?) {
             val h = bm.height
 
             // (2)RUN CNN
-            val outW = (Math.ceil(w * 0.5 - 5) + 0.5).toInt()
-            val outH = (Math.ceil(h * 0.5 - 5) + 0.5).toInt()
+            val outW = (ceil(w * 0.5 - 5) + 0.5).toInt()
+            val outH = (ceil(h * 0.5 - 5) + 0.5).toInt()
             var prob1 =
                 Array(
                     1
@@ -102,7 +104,7 @@ class MTCNN(assetManager: AssetManager?) {
         nms(totalBoxes, 0.7f, "Union")
 
         // BBR
-        BoundingBoxReggression(totalBoxes)
+        boundingBoxRegression(totalBoxes)
         return updateBoxes(totalBoxes)
     }
 
@@ -146,10 +148,10 @@ class MTCNN(assetManager: AssetManager?) {
                     // core
                     box.score = score
                     // box
-                    box.box[0] = Math.round(x * 2 / scale)
-                    box.box[1] = Math.round(y * 2 / scale)
-                    box.box[2] = Math.round((x * 2 + 11) / scale)
-                    box.box[3] = Math.round((y * 2 + 11) / scale)
+                    box.box[0] = (x * 2 / scale).roundToInt()
+                    box.box[1] = (y * 2 / scale).roundToInt()
+                    box.box[2] = ((x * 2 + 11) / scale).roundToInt()
+                    box.box[3] = ((y * 2 + 11) / scale).roundToInt()
                     // bbr
                     for (i in 0..3) {
                         box.bbr[i] = conv4_2_BiasAdd[0][y][x][i]
@@ -176,13 +178,13 @@ class MTCNN(assetManager: AssetManager?) {
                         val x1 = max(box.box[0], box2.box[0])
                         val y1 = max(box.box[1], box2.box[1])
                         val x2 = min(box.box[2], box2.box[2])
-                        val y2 = Math.min(box.box[3], box2.box[3])
+                        val y2 = min(box.box[3], box2.box[3])
                         if (x2 < x1 || y2 < y1) continue
                         val areaIoU = (x2 - x1 + 1) * (y2 - y1 + 1)
                         var iou = 0f
                         if (method == "Union") iou =
                             1.0f * areaIoU / (box.area() + box2.area() - areaIoU) else if (method == "Min") iou =
-                            1.0f * areaIoU / Math.min(box.area(), box2.area())
+                            1.0f * areaIoU / min(box.area(), box2.area())
                         if (iou >= threshold) { // 删除prob小的那个框
                             if (box.score > box2.score) box2.deleted = true else box.deleted = true
                         }
@@ -192,7 +194,7 @@ class MTCNN(assetManager: AssetManager?) {
         }
     }
 
-    private fun BoundingBoxReggression(boxes: Vector<Box>) {
+    private fun boundingBoxRegression(boxes: Vector<Box>) {
         for (i in boxes.indices) boxes[i].calibrate()
     }
 
@@ -226,7 +228,7 @@ class MTCNN(assetManager: AssetManager?) {
 
         // Nms
         nms(boxes, 0.7f, "Union")
-        BoundingBoxReggression(boxes)
+        boundingBoxRegression(boxes)
         return updateBoxes(boxes)
     }
 
@@ -245,7 +247,6 @@ class MTCNN(assetManager: AssetManager?) {
         outputs[rInterpreter.getOutputIndex("rnet/conv5-2/conv5-2")] = conv5_2_conv5_2
         rInterpreter.runForMultipleInputsOutputs(arrayOf<Any>(rNetIn), outputs)
 
-        // 转换
         for (i in 0 until num) {
             boxes[i].score = prob1[i][1]
             for (j in 0..3) {
@@ -280,7 +281,7 @@ class MTCNN(assetManager: AssetManager?) {
                 boxes[i].deleted = true
             }
         }
-        BoundingBoxReggression(boxes)
+        boundingBoxRegression(boxes)
         // Nms
         nms(boxes, 0.7f, "Min")
         return updateBoxes(boxes)
@@ -313,12 +314,9 @@ class MTCNN(assetManager: AssetManager?) {
             }
             // landmark
             for (j in 0..4) {
-                val x = Math.round(
-                    boxes[i].left() + conv6_3_conv6_3[i][j] * boxes[i].width()
-                )
-                val y = Math.round(
-                    boxes[i].top() + conv6_3_conv6_3[i][j + 5] * boxes[i].height()
-                )
+                val x = (boxes[i].left() + conv6_3_conv6_3[i][j] * boxes[i].width()).roundToInt()
+                val y =
+                    (boxes[i].top() + conv6_3_conv6_3[i][j + 5] * boxes[i].height()).roundToInt()
                 boxes[i].landmark[j] = Point(x, y)
             }
         }
