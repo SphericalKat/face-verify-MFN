@@ -1,9 +1,9 @@
-package dev.smoketrees.face_verify_mfn.models.mtcnn
+package co.potatoproject.faceverify.models.mtcnn
 
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.Point
-import dev.smoketrees.face_verify_mfn.utils.Utils
+import co.potatoproject.faceverify.utils.FaceUtils
 import org.tensorflow.lite.Interpreter
 import java.util.*
 import kotlin.math.ceil
@@ -59,7 +59,7 @@ class MTCNN(assetManager: AssetManager?) {
             val scale = 12.0f / currentFaceSize
 
             // (1)Image Resize
-            val bm: Bitmap = Utils.bitmapResize(bitmap, scale)
+            val bm: Bitmap = FaceUtils.bitmapResize(bitmap, scale)
             val w = bm.width
             val h = bm.height
 
@@ -83,8 +83,8 @@ class MTCNN(assetManager: AssetManager?) {
                     ) { Array(outH) { FloatArray(4) } }
                 }
             pNetForward(bm, prob1, conv4_2_BiasAdd)
-            prob1 = Utils.transposeBatch(prob1)
-            conv4_2_BiasAdd = Utils.transposeBatch(conv4_2_BiasAdd)
+            prob1 = FaceUtils.transposeBatch(prob1)
+            conv4_2_BiasAdd = FaceUtils.transposeBatch(conv4_2_BiasAdd)
 
             val curBoxes = Vector<Box>()
             generateBoxes(prob1, conv4_2_BiasAdd, scale, curBoxes)
@@ -113,7 +113,7 @@ class MTCNN(assetManager: AssetManager?) {
         prob1: Array<Array<Array<FloatArray>>>,
         conv4_2_BiasAdd: Array<Array<Array<FloatArray>>>
     ) {
-        val img: Array<Array<FloatArray>> = Utils.normalizeImage(bitmap)
+        val img: Array<Array<FloatArray>> = FaceUtils.normalizeImage(bitmap)
         var pNetIn =
             Array(1) {
                 Array(0) {
@@ -123,7 +123,7 @@ class MTCNN(assetManager: AssetManager?) {
                 }
             }
         pNetIn[0] = img
-        pNetIn = Utils.transposeBatch(pNetIn)
+        pNetIn = FaceUtils.transposeBatch(pNetIn)
         val outputs: MutableMap<Int, Any> =
             HashMap()
         outputs[pInterpreter.getOutputIndex("pnet/prob1")] = prob1
@@ -211,8 +211,8 @@ class MTCNN(assetManager: AssetManager?) {
             }
         for (i in 0 until num) {
             var curCrop: Array<Array<FloatArray>> =
-                Utils.cropAndResize(bitmap, boxes[i], 24)
-            curCrop = Utils.transposeImage(curCrop)
+                FaceUtils.cropAndResize(bitmap, boxes[i], 24)
+            curCrop = FaceUtils.transposeImage(curCrop)
             rNetIn[i] = curCrop
         }
 
@@ -268,8 +268,8 @@ class MTCNN(assetManager: AssetManager?) {
             }
         for (i in 0 until num) {
             var curCrop: Array<Array<FloatArray>> =
-                Utils.cropAndResize(bitmap, boxes[i], 48)
-            curCrop = Utils.transposeImage(curCrop)
+                FaceUtils.cropAndResize(bitmap, boxes[i], 48)
+            curCrop = FaceUtils.transposeImage(curCrop)
             oNetIn[i] = curCrop
         }
 
@@ -343,19 +343,19 @@ class MTCNN(assetManager: AssetManager?) {
             Interpreter.Options()
         options.setNumThreads(4)
         pInterpreter = Interpreter(
-            Utils.loadModelFile(
+            FaceUtils.loadModelFile(
                 assetManager!!,
                 MODEL_FILE_PNET
             ), options
         )
         rInterpreter = Interpreter(
-            Utils.loadModelFile(
+            FaceUtils.loadModelFile(
                 assetManager,
                 MODEL_FILE_RNET
             ), options
         )
         oInterpreter = Interpreter(
-            Utils.loadModelFile(
+            FaceUtils.loadModelFile(
                 assetManager,
                 MODEL_FILE_ONET
             ), options

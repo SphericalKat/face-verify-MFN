@@ -1,4 +1,4 @@
-package dev.smoketrees.face_verify_mfn.models.mtcnn
+package co.potatoproject.faceverify.models.mtcnn
 
 import android.graphics.Point
 import android.graphics.Rect

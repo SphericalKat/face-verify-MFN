@@ -1,10 +1,12 @@
-package dev.smoketrees.face_verify_mfn.utils
+package co.potatoproject.faceverify.utils
 
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.Rect
-import dev.smoketrees.face_verify_mfn.models.mtcnn.Box
+import android.util.Log
+import co.potatoproject.faceverify.models.mtcnn.Box
+import co.potatoproject.faceverify.models.mtcnn.MTCNN
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.MappedByteBuffer
@@ -13,14 +15,14 @@ import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-object Utils {
+object FaceUtils {
 
     @Throws(IOException::class)
     fun loadModelFile(
         assetManager: AssetManager,
-        modelPath: String?
+        modelPath: String
     ): MappedByteBuffer {
-        val fileDescriptor = assetManager.openFd(modelPath!!)
+        val fileDescriptor = assetManager.openFd(modelPath)
         val inputStream =
             FileInputStream(fileDescriptor.fileDescriptor)
         val fileChannel = inputStream.channel
@@ -31,6 +33,31 @@ object Utils {
             startOffset,
             declaredLength
         )
+    }
+
+    fun cropBitmapWithFace(
+        bitmap: Bitmap,
+        mtcnn: MTCNN
+    ): Bitmap? {
+        val bitmapTemp = bitmap.copy(bitmap.config, false)
+
+
+        val boxes = mtcnn.detectFaces(
+            bitmapTemp,
+            bitmapTemp.width / 5
+        )
+
+        if (boxes.size == 0) {
+            Log.w("FaceVerify", "Failed to detect any faces")
+            return null
+        }
+
+        val box = boxes[0]
+        box.toSquareShape()
+        box.limitSquare(bitmapTemp.width, bitmapTemp.height)
+        val rect = box.transform2Rect()
+
+        return crop(bitmapTemp, rect)
     }
 
     fun normalizeImage(bitmap: Bitmap): Array<Array<FloatArray>> {

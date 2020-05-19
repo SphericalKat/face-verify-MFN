@@ -8,15 +8,13 @@ import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import co.potatoproject.faceverify.models.mfn.MobileFaceNet
+import co.potatoproject.faceverify.models.mtcnn.MTCNN
+import co.potatoproject.faceverify.utils.FaceUtils
 import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
 import dev.smoketrees.face_verify_mfn.R
-import dev.smoketrees.face_verify_mfn.models.mfn.MobileFaceNet
-import dev.smoketrees.face_verify_mfn.models.mtcnn.Box
-import dev.smoketrees.face_verify_mfn.models.mtcnn.MTCNN
-import dev.smoketrees.face_verify_mfn.utils.Utils
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mfn: MobileFaceNet
@@ -62,41 +60,9 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val bitmapTemp1 = bitmap1!!.copy(bitmap1!!.config, false)
-        val bitmapTemp2 = bitmap2!!.copy(bitmap2!!.config, false)
+        bitmapCrop1 = FaceUtils.cropBitmapWithFace(bitmap1!!, mtcnn)
+        bitmapCrop2 = FaceUtils.cropBitmapWithFace(bitmap2!!, mtcnn)
 
-
-        val start = System.currentTimeMillis()
-        val boxes1: Vector<Box> = mtcnn.detectFaces(
-            bitmapTemp1,
-            bitmapTemp1.width / 5
-        )
-
-        val end = System.currentTimeMillis()
-        resultTextView.text = "Time taken to crop images: ${(end - start)} ms"
-        val boxes2: Vector<Box> = mtcnn.detectFaces(
-            bitmapTemp2,
-            bitmapTemp2.width / 5
-        )
-
-        if (boxes1.size == 0 || boxes2.size == 0) {
-            Toast.makeText(this, "No faces detected", Toast.LENGTH_LONG).show()
-            return
-        }
-
-
-        val box1 = boxes1[0]
-        val box2 = boxes2[0]
-        box1.toSquareShape()
-        box2.toSquareShape()
-        box1.limitSquare(bitmapTemp1.width, bitmapTemp1.height)
-        box2.limitSquare(bitmapTemp2.width, bitmapTemp2.height)
-        val rect1 = box1.transform2Rect()
-        val rect2 = box2.transform2Rect()
-
-
-        bitmapCrop1 = Utils.crop(bitmapTemp1, rect1)
-        bitmapCrop2 = Utils.crop(bitmapTemp2, rect2)
         cropView.setImageBitmap(bitmapCrop1)
         cropView2.setImageBitmap(bitmapCrop2)
     }

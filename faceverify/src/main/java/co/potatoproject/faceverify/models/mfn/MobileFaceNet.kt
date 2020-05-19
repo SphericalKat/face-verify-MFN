@@ -1,8 +1,8 @@
-package dev.smoketrees.face_verify_mfn.models.mfn
+package co.potatoproject.faceverify.models.mfn
 
 import android.content.res.AssetManager
 import android.graphics.Bitmap
-import dev.smoketrees.face_verify_mfn.utils.Utils
+import co.potatoproject.faceverify.utils.FaceUtils
 import org.tensorflow.lite.Interpreter
 import kotlin.math.pow
 
@@ -26,7 +26,7 @@ class MobileFaceNet(assetManager: AssetManager?) {
         val embeddings =
             Array(2) { FloatArray(192) }
         interpreter.run(datasets, embeddings)
-        Utils.l2Normalize(embeddings, 1e-10)
+        FaceUtils.l2Normalize(embeddings, 1e-10)
         return evaluate(embeddings)
     }
 
@@ -73,7 +73,7 @@ class MobileFaceNet(assetManager: AssetManager?) {
             }
         for (i in 0 until ddims[0]) {
             val bitmap = bitmaps[i]
-            datasets[i] = Utils.normalizeImage(bitmap)
+            datasets[i] = FaceUtils.normalizeImage(bitmap)
         }
         return datasets
     }
@@ -89,7 +89,7 @@ class MobileFaceNet(assetManager: AssetManager?) {
             Interpreter.Options()
         options.setNumThreads(4)
         interpreter = Interpreter(
-            Utils.loadModelFile(
+            FaceUtils.loadModelFile(
                 assetManager!!,
                 MODEL_FILE
             ), options
