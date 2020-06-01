@@ -1,3 +1,2 @@
-include ':faceverify'
 include ':app'
 rootProject.name = "face-verify-MFN"

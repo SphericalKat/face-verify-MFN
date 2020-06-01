@@ -5,18 +5,16 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
+    ndkVersion "21.1.6352462"
 
     defaultConfig {
         applicationId "dev.smoketrees.face_verify_mfn"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 1
+        versionCode 2
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        ndk {
-            abiFilters 'armeabi-v7a'
-        }
     }
 
     buildTypes {
@@ -35,15 +33,17 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation 'androidx.core:core-ktx:1.3.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.1.0'
-    implementation project(":faceverify")
 
     // Permissions handling
     implementation 'com.github.quickpermissions:quickpermissions-kotlin:0.4.0'
 
     // Tensorflow lite
     implementation 'org.tensorflow:tensorflow-lite:0.0.0-nightly'
+
+    // Face verify lib
+    implementation 'com.github.ATechnoHazard:faceverify-lib:0.1.0'
 }
