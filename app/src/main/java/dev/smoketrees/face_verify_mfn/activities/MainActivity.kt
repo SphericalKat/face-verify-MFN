@@ -12,31 +12,33 @@ import co.potatoproject.faceverify.models.mfn.MobileFaceNet
 import co.potatoproject.faceverify.models.mtcnn.MTCNN
 import co.potatoproject.faceverify.utils.FaceUtils
 import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
-import dev.smoketrees.face_verify_mfn.R
-import kotlinx.android.synthetic.main.activity_main.*
+import dev.smoketrees.face_verify_mfn.databinding.ActivityMainBinding
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mfn: MobileFaceNet
     private lateinit var mtcnn: MTCNN
+    private lateinit var binding: ActivityMainBinding
     private var bitmapCrop1: Bitmap? = null
     private var bitmapCrop2: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         runWithPermissions(Manifest.permission.CAMERA) {
             Toast.makeText(this, "Camera permissions granted", Toast.LENGTH_SHORT).show()
         }
 
-        button1.setOnClickListener {
-            selectedImage = imageView
+        binding.button1.setOnClickListener {
+            selectedImage = binding.imageView
             startActivity(Intent(this, CameraActivity::class.java))
         }
 
-        button2.setOnClickListener {
-            selectedImage = imageView2
+        binding.button2.setOnClickListener {
+            selectedImage = binding.imageView2
             startActivity(Intent(this, CameraActivity::class.java))
         }
 
@@ -47,11 +49,11 @@ class MainActivity : AppCompatActivity() {
             Log.e("TAG", "Error initing models", e)
         }
 
-        cropButton.setOnClickListener {
+        binding.cropButton.setOnClickListener {
             faceCrop()
         }
 
-        compareButton.setOnClickListener { compareFaces() }
+        binding.compareButton.setOnClickListener { compareFaces() }
     }
 
     private fun faceCrop() {
@@ -63,8 +65,8 @@ class MainActivity : AppCompatActivity() {
         bitmapCrop1 = FaceUtils.cropBitmapWithFace(bitmap1!!, mtcnn)
         bitmapCrop2 = FaceUtils.cropBitmapWithFace(bitmap2!!, mtcnn)
 
-        cropView.setImageBitmap(bitmapCrop1)
-        cropView2.setImageBitmap(bitmapCrop2)
+        binding.cropView.setImageBitmap(bitmapCrop1)
+        binding.cropView2.setImageBitmap(bitmapCrop2)
     }
 
     private fun compareFaces() {
@@ -80,13 +82,13 @@ class MainActivity : AppCompatActivity() {
         var text = "Match probability: $same"
         if (same > MobileFaceNet.THRESHOLD) {
             text = "$text, Faces match: True"
-            resultTextView.setTextColor(resources.getColor(android.R.color.holo_green_light))
+            binding.resultTextView.setTextColor(resources.getColor(android.R.color.holo_green_light))
         } else {
             text = "$text, Faces match: False"
-            resultTextView.setTextColor(resources.getColor(android.R.color.holo_red_light))
+            binding.resultTextView.setTextColor(resources.getColor(android.R.color.holo_red_light))
         }
         text += "\nTime taken to compare faces: ${(end - start)} ms"
-        resultTextView.text = text
+        binding.resultTextView.text = text
     }
 
     companion object {

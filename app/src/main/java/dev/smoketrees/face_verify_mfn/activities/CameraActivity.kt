@@ -12,7 +12,7 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import dev.smoketrees.face_verify_mfn.R
-import kotlinx.android.synthetic.main.activity_camera.*
+import dev.smoketrees.face_verify_mfn.databinding.ActivityCameraBinding
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import kotlin.math.abs
@@ -20,40 +20,41 @@ import kotlin.properties.Delegates
 
 class CameraActivity : AppCompatActivity() {
     private lateinit var camera: Camera
+    private lateinit var binding: ActivityCameraBinding
     private val IMAGE_FORMAT = ImageFormat.NV21
-    private val CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT
+    private val CAMERA_ID = CameraInfo.CAMERA_FACING_FRONT
     private var displayDegree by Delegates.notNull<Int>()
     private var size: Camera.Size? = null
     private lateinit var data: ByteArray
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityCameraBinding.inflate(layoutInflater)
+        val view = binding.root
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-        setContentView(R.layout.activity_camera)
-        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+        setContentView(view)
+        binding.surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(
-                holder: SurfaceHolder?,
+                holder: SurfaceHolder,
                 format: Int,
                 width: Int,
                 height: Int
             ) {
             }
 
-            override fun surfaceDestroyed(holder: SurfaceHolder?) {
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
                 releaseCamera()
             }
 
-            override fun surfaceCreated(holder: SurfaceHolder?) {
-                if (holder != null) {
-                    openCamera(holder)
-                }
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                openCamera(holder)
             }
         })
-        camera_fab.setOnClickListener {
+        binding.cameraFab.setOnClickListener {
             val bitmap = convertBitmap(data, camera)
             MainActivity.selectedImage.setImageBitmap(bitmap)
             if (MainActivity.selectedImage.id == R.id.imageView) {
@@ -92,8 +93,8 @@ class CameraActivity : AppCompatActivity() {
 
         size = getOptimalSize(
             parameters.supportedPreviewSizes,
-            surfaceView.width,
-            surfaceView.height
+            binding.surfaceView.width,
+            binding.surfaceView.height
         )
         parameters.setPreviewSize(size!!.width, size!!.height)
         parameters.previewFormat = IMAGE_FORMAT

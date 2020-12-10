@@ -1,11 +1,14 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 30
     buildToolsVersion "29.0.3"
     ndkVersion "21.1.6352462"
+
+    buildFeatures {
+        viewBinding true
+    }
 
     defaultConfig {
         applicationId "dev.smoketrees.face_verify_mfn"
