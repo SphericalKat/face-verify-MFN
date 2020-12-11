@@ -9,16 +9,26 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Dao
-interface UserDao {
+abstract class UserDao {
     @Transaction
     @Query("SELECT * FROM user")
-    fun getAllUsersFlow(): Flow<List<UserWithEmbeddings>>
+    abstract fun getAllUsersFlow(): Flow<List<UserWithEmbeddings>>
 
+    @Transaction
     @Query("SELECT * FROM user WHERE userId = :userId")
-    fun getUserFlowById(userId: Int): Flow<User>
+    abstract fun getUserFlowById(userId: Int): Flow<UserWithEmbeddings>
+
+    suspend fun insertUserWithEmbedding(user: User, embedding: Embedding) {
+        val userId = insertUser(user)
+        embedding.userId = userId.toInt()
+        insertEmbedding(embedding)
+    }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertEmbedding(embedding: Embedding)
+    abstract suspend fun insertUser(user: User): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertEmbedding(embedding: Embedding)
 
     @ExperimentalCoroutinesApi
     fun getAllUsers() = getAllUsersFlow().distinctUntilChanged()

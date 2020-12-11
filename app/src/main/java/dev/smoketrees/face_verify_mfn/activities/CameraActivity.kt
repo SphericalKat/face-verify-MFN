@@ -6,18 +6,30 @@ import android.graphics.*
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import android.os.Bundle
+import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.Window
 import android.view.WindowManager
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import dev.smoketrees.face_verify_mfn.R
+import co.potatoproject.faceverify.models.mtcnn.MTCNN
+import co.potatoproject.faceverify.utils.FaceUtils
+import dagger.hilt.android.AndroidEntryPoint
 import dev.smoketrees.face_verify_mfn.databinding.ActivityCameraBinding
+import dev.smoketrees.face_verify_mfn.ml.MobileFaceNet
+import dev.smoketrees.face_verify_mfn.models.Embedding
+import dev.smoketrees.face_verify_mfn.models.User
+import dev.smoketrees.viewmodels.AppViewModel
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import kotlin.math.abs
 import kotlin.properties.Delegates
 
+
+@AndroidEntryPoint
 class CameraActivity : AppCompatActivity() {
     private lateinit var camera: Camera
     private lateinit var binding: ActivityCameraBinding
@@ -26,6 +38,9 @@ class CameraActivity : AppCompatActivity() {
     private var displayDegree by Delegates.notNull<Int>()
     private var size: Camera.Size? = null
     private lateinit var data: ByteArray
+    private val viewModel: AppViewModel by viewModels()
+    private lateinit var mtcnn: MTCNN
+    private lateinit var mfn: MobileFaceNet
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,14 +52,23 @@ class CameraActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
         setContentView(view)
+
+        val name = intent.extras?.getString("name")
+
+        try {
+            mtcnn = MTCNN(assets)
+            mfn = MobileFaceNet(assets)
+        } catch (e: IOException) {
+            Log.e("UserFragment", "Error initializing models", e)
+        }
+
         binding.surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(
                 holder: SurfaceHolder,
                 format: Int,
                 width: Int,
                 height: Int
-            ) {
-            }
+            ) {}
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
                 releaseCamera()
@@ -55,7 +79,10 @@ class CameraActivity : AppCompatActivity() {
             }
         })
         binding.cameraFab.setOnClickListener {
-            val bitmap = convertBitmap(data, camera)
+            var bitmap = convertBitmap(data, camera)
+            bitmap = FaceUtils.cropBitmapWithFace(bitmap!!, mtcnn)
+            val floatarr = mfn.generateEmbedding(bitmap!!)
+            viewModel.addUser(User(name = name!!), Embedding(embedding = Json.encodeToString(floatarr)))
             finish()
         }
     }

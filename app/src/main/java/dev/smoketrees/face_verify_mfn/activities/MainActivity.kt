@@ -9,9 +9,11 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
+import dagger.hilt.android.AndroidEntryPoint
 import dev.smoketrees.face_verify_mfn.R
 import dev.smoketrees.face_verify_mfn.databinding.ActivityMainBinding
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 

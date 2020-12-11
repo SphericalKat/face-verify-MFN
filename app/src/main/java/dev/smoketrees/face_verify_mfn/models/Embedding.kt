@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Embedding(
-    @PrimaryKey val embeddingId: Int,
+    @PrimaryKey(autoGenerate = true) val embeddingId: Int = 0,
+    var userId: Int = 0,
     val embedding: String
 )
