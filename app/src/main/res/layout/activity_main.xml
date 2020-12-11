@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph" />
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
@@ -68,8 +80,8 @@
         android:id="@+id/cropButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Crop Images"
         android:layout_marginTop="8dp"
+        android:text="Crop Images"
         app:layout_constraintEnd_toEndOf="@+id/cropView"
         app:layout_constraintStart_toStartOf="@+id/cropView"
         app:layout_constraintTop_toBottomOf="@+id/cropView" />
@@ -90,8 +102,8 @@
         android:id="@+id/compareButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Compare faces"
         android:layout_marginTop="8dp"
+        android:text="Compare faces"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/cropView2"
         app:layout_constraintTop_toBottomOf="@+id/cropView2" />
@@ -105,5 +117,15 @@
         app:layout_constraintEnd_toEndOf="@+id/compareButton"
         app:layout_constraintStart_toStartOf="@+id/cropButton"
         tools:text="Result text" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:menu="@menu/bottom_menu"
+        app:layout_constraintBottom_toBottomOf="@+id/nav_host_fragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

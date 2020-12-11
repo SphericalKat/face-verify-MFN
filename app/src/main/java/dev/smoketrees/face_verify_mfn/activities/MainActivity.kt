@@ -8,11 +8,15 @@ import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import co.potatoproject.faceverify.models.mfn.MobileFaceNet
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import co.potatoproject.faceverify.models.mtcnn.MTCNN
 import co.potatoproject.faceverify.utils.FaceUtils
 import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
+import dev.smoketrees.face_verify_mfn.R
 import dev.smoketrees.face_verify_mfn.databinding.ActivityMainBinding
+import dev.smoketrees.face_verify_mfn.ml.MobileFaceNet
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +31,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        val bottomNavigationView = binding.bottomNavView
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        bottomNavigationView.setupWithNavController(navController)
 
         runWithPermissions(Manifest.permission.CAMERA) {
             Toast.makeText(this, "Camera permissions granted", Toast.LENGTH_SHORT).show()
@@ -77,6 +86,7 @@ class MainActivity : AppCompatActivity() {
 
         val start = System.currentTimeMillis()
         val same = mfn.compare(bitmapCrop1, bitmapCrop2)
+        mfn.generateEmbedding(bitmapCrop1!!)
         val end = System.currentTimeMillis()
 
         var text = "Match probability: $same"

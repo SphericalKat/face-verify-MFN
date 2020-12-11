@@ -5,7 +5,6 @@ import androidx.room.*
 @Entity
 data class User(
     @PrimaryKey val userId: Int,
-
 )
 
 data class UserWithEmbeddings(
