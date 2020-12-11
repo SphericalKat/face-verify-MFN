@@ -27,4 +27,7 @@ class AppViewModel @ViewModelInject constructor(
     fun addUser(user: User, embedding: Embedding) = viewModelScope.launch(Dispatchers.IO) {
         userDao.insertUserWithEmbedding(user, embedding)
     }
+
+    @ExperimentalCoroutinesApi
+    fun getUserById(id: Int) = userDao.getUserById(id).asLiveData(viewModelScope.coroutineContext)
 }

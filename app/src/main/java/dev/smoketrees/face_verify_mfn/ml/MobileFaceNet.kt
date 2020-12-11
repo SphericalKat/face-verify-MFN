@@ -43,7 +43,7 @@ class MobileFaceNet(assetManager: AssetManager?) {
         return embedding[0]
     }
 
-    private fun evaluate(embeddings: Array<FloatArray>): Float {
+    fun evaluate(embeddings: Array<FloatArray>): Float {
         val embeddings1 = embeddings[0]
         val embeddings2 = embeddings[1]
         var dist = 0f
@@ -59,33 +59,6 @@ class MobileFaceNet(assetManager: AssetManager?) {
             }
         }
         return same
-    }
-
-    private fun getSingleImageDataset(bitmap: Bitmap):  Array<Array<Array<FloatArray>>> {
-        val bitmaps = arrayOf(bitmap)
-        val ddims = intArrayOf(
-            bitmaps.size,
-            INPUT_IMAGE_SIZE,
-            INPUT_IMAGE_SIZE,
-            3
-        )
-        val datasets =
-            Array(
-                ddims[0]
-            ) {
-                Array(
-                    ddims[1]
-                ) {
-                    Array(
-                        ddims[2]
-                    ) { FloatArray(ddims[3]) }
-                }
-            }
-        for (i in 0 until ddims[0]) {
-            val tempBitmap = bitmaps[i]
-            datasets[i] = FaceUtils.normalizeImage(tempBitmap)
-        }
-        return datasets
     }
 
     private fun getTwoImageDatasets(

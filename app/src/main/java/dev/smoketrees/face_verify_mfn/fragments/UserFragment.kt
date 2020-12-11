@@ -48,10 +48,10 @@ class UserFragment : Fragment() {
 
         val dataSource = dataSourceTypedOf<UserWithEmbeddings>()
 
-        viewModel.getAllUsers().observe(viewLifecycleOwner, {
+        viewModel.getAllUsers().observe(viewLifecycleOwner) {
             dataSource.clear()
             dataSource.addAll(it)
-        })
+        }
 
         binding.userRecyclerView.setup {
             withDataSource(dataSource)
@@ -62,7 +62,10 @@ class UserFragment : Fragment() {
                 }
                 
                 onClick {
-                    // TODO: verify user
+                    val intent = Intent(requireContext(), CameraActivity::class.java)
+                    intent.putExtra("id", item.user.userId)
+                    intent.putExtra("verify", true)
+                    startActivity(intent)
                 }
             }
         }
@@ -73,6 +76,7 @@ class UserFragment : Fragment() {
                     if (text.isNotEmpty()) {
                         val intent = Intent(requireContext(), CameraActivity::class.java)
                         intent.putExtra("name", text.toString())
+                        intent.putExtra("verify", false)
                         startActivity(intent)
                         dialog.dismiss()
                     }

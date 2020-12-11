@@ -11,6 +11,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import co.potatoproject.faceverify.models.mtcnn.MTCNN
@@ -21,6 +22,8 @@ import dev.smoketrees.face_verify_mfn.ml.MobileFaceNet
 import dev.smoketrees.face_verify_mfn.models.Embedding
 import dev.smoketrees.face_verify_mfn.models.User
 import dev.smoketrees.viewmodels.AppViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.ByteArrayOutputStream
@@ -42,6 +45,7 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var mtcnn: MTCNN
     private lateinit var mfn: MobileFaceNet
 
+    @ExperimentalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCameraBinding.inflate(layoutInflater)
@@ -54,6 +58,8 @@ class CameraActivity : AppCompatActivity() {
         setContentView(view)
 
         val name = intent.extras?.getString("name")
+        val verify = intent.extras?.getBoolean("verify")
+        val id = intent.extras?.getInt("id")
 
         try {
             mtcnn = MTCNN(assets)
@@ -80,10 +86,31 @@ class CameraActivity : AppCompatActivity() {
         })
         binding.cameraFab.setOnClickListener {
             var bitmap = convertBitmap(data, camera)
-            bitmap = FaceUtils.cropBitmapWithFace(bitmap!!, mtcnn)
-            val floatarr = mfn.generateEmbedding(bitmap!!)
-            viewModel.addUser(User(name = name!!), Embedding(embedding = Json.encodeToString(floatarr)))
-            finish()
+            if (verify == true) {
+                viewModel.getUserById(id!!).observe(this) {user ->
+                    val savedEmbedding: FloatArray = Json.decodeFromString(user.embeddings[0].embedding)
+                    bitmap = FaceUtils.cropBitmapWithFace(bitmap!!, mtcnn)
+                    if (bitmap == null) {
+                        Toast.makeText(this, "No face found", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    val floatarr = mfn.generateEmbedding(bitmap!!)
+                    val embeddings = Array(2) { FloatArray(192) }
+                    embeddings[0] = savedEmbedding
+                    embeddings[1] = floatarr
+                    FaceUtils.l2Normalize(embeddings, 1e-10)
+                    val match = mfn.evaluate(embeddings)
+                    Toast.makeText(this, "Match percent $match", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            } else {
+                bitmap = FaceUtils.cropBitmapWithFace(bitmap!!, mtcnn)
+                val floatarr = mfn.generateEmbedding(bitmap!!)
+                viewModel.addUser(User(name = name!!), Embedding(embedding = Json.encodeToString(floatarr)))
+                finish()
+            }
+
+
         }
     }
 
