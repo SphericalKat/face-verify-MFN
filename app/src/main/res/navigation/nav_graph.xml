@@ -8,11 +8,11 @@
     <fragment
         android:id="@+id/userFragment"
         android:name="dev.smoketrees.face_verify_mfn.fragments.UserFragment"
-        android:label="fragment_user"
+        android:label="User management"
         tools:layout="@layout/fragment_user" />
     <fragment
         android:id="@+id/verifyFragment"
         android:name="dev.smoketrees.face_verify_mfn.VerifyFragment"
-        android:label="fragment_verify"
+        android:label="Verify users"
         tools:layout="@layout/fragment_verify" />
 </navigation>

@@ -56,12 +56,6 @@ class CameraActivity : AppCompatActivity() {
         })
         binding.cameraFab.setOnClickListener {
             val bitmap = convertBitmap(data, camera)
-            MainActivity.selectedImage.setImageBitmap(bitmap)
-            if (MainActivity.selectedImage.id == R.id.imageView) {
-                MainActivity.bitmap1 = bitmap
-            } else {
-                MainActivity.bitmap2 = bitmap
-            }
             finish()
         }
     }
